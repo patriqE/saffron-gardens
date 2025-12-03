@@ -15,9 +15,11 @@ public class JwtUtil {
 
     private final Key signingKey;
     private final long validityMillis;
+    private final long refreshValidityMillis;
 
     public JwtUtil(@Value("${app.jwt.secret:change_this_default_secret}") String secret,
-                   @Value("${app.jwt.ttl-ms:3600000}") long ttlMs) {
+                   @Value("${app.jwt.ttl-ms:3600000}") long ttlMs,
+                   @Value("${app.jwt.refresh-ttl-ms:604800000}") long refreshTtlMs) {
         // Use provided secret bytes as HMAC key when secure enough; otherwise generate a secure random key.
         Key key;
         try {
@@ -28,11 +30,23 @@ public class JwtUtil {
         }
         this.signingKey = key;
         this.validityMillis = ttlMs;
+        this.refreshValidityMillis = refreshTtlMs;
     }
 
     public String generateToken(String username) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + validityMillis);
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(signingKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(String username) {
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + refreshValidityMillis);
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(now)
