@@ -1,0 +1,127 @@
+:root {
+    --bg: #f8faf8;
+    --accent: #b7410e;
+    --muted: #6b7280;
+    --card: #ffffff;
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    margin: 0;
+    background: var(--bg);
+    color: #0f172a
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px
+}
+
+.site-header {
+    background: linear-gradient(90deg, #fff 0%, #fff 70%);
+    border-bottom: 1px solid #eee
+}
+
+.brand {
+    margin: 0;
+    display: inline-block;
+    font-weight: 700;
+    color: var(--accent)
+}
+
+.nav {
+    float: right
+}
+
+.nav a {
+    color: var(--muted);
+    margin-left: 18px;
+    text-decoration: none
+}
+
+.hero {
+    padding: 64px 0;
+    text-align: center
+}
+
+.hero h2 {
+    font-size: 32px;
+    margin: 0 0 8px
+}
+
+.tagline {
+    color: var(--muted);
+    margin-bottom: 18px
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid #ddd;
+    color: #111;
+    text-decoration: none
+}
+
+.btn.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent)
+}
+
+.features {
+    padding: 40px 0
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px
+}
+
+.card {
+    background: var(--card);
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06)
+}
+
+.site-footer {
+    padding: 18px 0;
+    text-align: center;
+    color: var(--muted);
+    border-top: 1px solid #eee;
+    margin-top: 40px
+}
+
+.vendor-cta {
+    margin-top: 12px
+}
+
+.contact {
+    padding: 30px 0
+}
+
+@media (max-width:600px) {
+    .nav {
+        float: none;
+        text-align: center;
+        margin-top: 12px
+    }
+
+    .hero h2 {
+        font-size: 22px
+    }
+}
