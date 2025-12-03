@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
@@ -21,11 +23,19 @@ public class AdminManagementService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
     private final Environment env;
+    private final AuditService auditService;
 
-    public AdminManagementService(UserRepository userRepo, PasswordEncoder passwordEncoder, Environment env) {
+    public AdminManagementService(UserRepository userRepo, PasswordEncoder passwordEncoder, Environment env, AuditService auditService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.env = env;
+        this.auditService = auditService;
+    }
+
+    private String actorName() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getName() != null) return auth.getName();
+        return "SYSTEM";
     }
 
     private String primaryIdentifier() {
@@ -62,6 +72,7 @@ public class AdminManagementService {
                 userRepo.save(u);
             }
             log.info("Primary super admin '{}' already exists; ensured SUPER_ADMIN role", primary);
+            auditService.record(actorName(), "ENSURE_PRIMARY_SUPER_ADMIN", "Ensured role SUPER_ADMIN for " + primary);
             return;
         }
 
@@ -70,6 +81,7 @@ public class AdminManagementService {
         user.setApproved(true);
         userRepo.save(user);
         log.info("Seeded primary super admin '{}'", primary);
+        auditService.record(actorName(), "SEED_PRIMARY_SUPER_ADMIN", "Seeded primary super admin: " + primary);
     }
 
     /* Administrative operations with guarding against modifying the primary super admin */
@@ -85,6 +97,7 @@ public class AdminManagementService {
         user.setApproved(true);
         User savedAdmin = userRepo.save(user);
         log.info("Created ADMIN user '{}'", username);
+        auditService.record(actorName(), "CREATE_ADMIN", "Created ADMIN user: " + username);
         return savedAdmin;
     }
 
@@ -99,6 +112,7 @@ public class AdminManagementService {
         user.setApproved(true);
         User saved = userRepo.save(user);
         log.info("Created SUPER_ADMIN user '{}'", username);
+        auditService.record(actorName(), "CREATE_SUPER_ADMIN", "Created SUPER_ADMIN user: " + username);
         return saved;
     }
 
@@ -110,6 +124,7 @@ public class AdminManagementService {
         user.setRole("SUPER_ADMIN");
         userRepo.save(user);
         log.info("Promoted user '{}' to SUPER_ADMIN", username);
+        auditService.record(actorName(), "PROMOTE_TO_SUPER_ADMIN", "Promoted user to SUPER_ADMIN: " + username);
     }
 
     public void demoteToAdmin(String username) {
@@ -121,6 +136,7 @@ public class AdminManagementService {
         user.setRole("ADMIN");
         userRepo.save(user);
         log.info("Demoted user '{}' to ADMIN", username);
+        auditService.record(actorName(), "DEMOTE_TO_ADMIN", "Demoted user to ADMIN: " + username);
     }
 
     public void deleteAdminOrSuperAdmin(String username) {
@@ -130,5 +146,6 @@ public class AdminManagementService {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
         userRepo.delete(user);
         log.info("Deleted user '{}'", username);
+        auditService.record(actorName(), "DELETE_USER", "Deleted user: " + username);
     }
 }
