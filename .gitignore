@@ -18,6 +18,9 @@ backend/.idea
 *.iws
 *.iml
 *.ipr
+# Local env and secret files
+backend/.env
+backend/secrets/
 
 ### NetBeans ###
 /nbproject/private/
