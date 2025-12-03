@@ -20,6 +20,7 @@ class AdminManagementServiceTest {
     private UserRepository userRepo;
     private PasswordEncoder passwordEncoder;
     private Environment env;
+    private AuditService auditService;
     private AdminManagementService service;
 
     @BeforeEach
@@ -27,7 +28,8 @@ class AdminManagementServiceTest {
         userRepo = mock(UserRepository.class);
         passwordEncoder = mock(PasswordEncoder.class);
         env = mock(Environment.class);
-        service = new AdminManagementService(userRepo, passwordEncoder, env);
+        auditService = mock(AuditService.class);
+        service = new AdminManagementService(userRepo, passwordEncoder, env, auditService);
     }
 
     @Test
