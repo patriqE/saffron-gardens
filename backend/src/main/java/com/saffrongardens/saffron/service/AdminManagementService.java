@@ -7,12 +7,16 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 @Service
 @Transactional
 public class AdminManagementService {
+
+    private static final Logger log = LoggerFactory.getLogger(AdminManagementService.class);
 
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
@@ -44,6 +48,7 @@ public class AdminManagementService {
         String primary = primaryIdentifier();
         String rawPassword = env.getProperty("PRIMARY_SUPERADMIN_PASSWORD");
         if (primary == null || primary.isBlank() || rawPassword == null || rawPassword.isBlank()) {
+            log.debug("No primary super admin env provided; skipping seed");
             return; // nothing to do
         }
 
@@ -56,6 +61,7 @@ public class AdminManagementService {
                 u.setApproved(true);
                 userRepo.save(u);
             }
+            log.info("Primary super admin '{}' already exists; ensured SUPER_ADMIN role", primary);
             return;
         }
 
@@ -63,6 +69,7 @@ public class AdminManagementService {
         User user = new User(primary, passwordEncoder.encode(rawPassword), "SUPER_ADMIN");
         user.setApproved(true);
         userRepo.save(user);
+        log.info("Seeded primary super admin '{}'", primary);
     }
 
     /* Administrative operations with guarding against modifying the primary super admin */
@@ -76,7 +83,9 @@ public class AdminManagementService {
         }
         User user = new User(username, passwordEncoder.encode(rawPassword), "ADMIN");
         user.setApproved(true);
-        return userRepo.save(user);
+        User savedAdmin = userRepo.save(user);
+        log.info("Created ADMIN user '{}'", username);
+        return savedAdmin;
     }
 
     public User createSuperAdmin(String username, String rawPassword) {
@@ -88,7 +97,9 @@ public class AdminManagementService {
         }
         User user = new User(username, passwordEncoder.encode(rawPassword), "SUPER_ADMIN");
         user.setApproved(true);
-        return userRepo.save(user);
+        User saved = userRepo.save(user);
+        log.info("Created SUPER_ADMIN user '{}'", username);
+        return saved;
     }
 
     public void promoteToSuperAdmin(String username) {
@@ -98,6 +109,7 @@ public class AdminManagementService {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
         user.setRole("SUPER_ADMIN");
         userRepo.save(user);
+        log.info("Promoted user '{}' to SUPER_ADMIN", username);
     }
 
     public void demoteToAdmin(String username) {
@@ -108,6 +120,7 @@ public class AdminManagementService {
         User user = userRepo.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
         user.setRole("ADMIN");
         userRepo.save(user);
+        log.info("Demoted user '{}' to ADMIN", username);
     }
 
     public void deleteAdminOrSuperAdmin(String username) {
@@ -116,5 +129,6 @@ public class AdminManagementService {
         }
         User user = userRepo.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
         userRepo.delete(user);
+        log.info("Deleted user '{}'", username);
     }
 }
