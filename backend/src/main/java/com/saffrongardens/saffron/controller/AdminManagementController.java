@@ -1,6 +1,9 @@
 package com.saffrongardens.saffron.controller;
 
 import com.saffrongardens.saffron.service.AdminManagementService;
+import com.saffrongardens.saffron.controller.dto.CreateAdminRequest;
+import com.saffrongardens.saffron.controller.dto.UsernameRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,36 +23,30 @@ public class AdminManagementController {
     // Create a normal admin
     @PostMapping("/create")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> createAdmin(@RequestBody Map<String, String> body) {
-        String username = body.get("username");
-        String password = body.get("password");
-        return ResponseEntity.ok(adminService.createAdmin(username, password));
+    public ResponseEntity<?> createAdmin(@Valid @RequestBody CreateAdminRequest req) {
+        return ResponseEntity.ok(adminService.createAdmin(req.getUsername(), req.getPassword()));
     }
 
     // Create a super admin
     @PostMapping("/create-super")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> createSuperAdmin(@RequestBody Map<String, String> body) {
-        String username = body.get("username");
-        String password = body.get("password");
-        return ResponseEntity.ok(adminService.createSuperAdmin(username, password));
+    public ResponseEntity<?> createSuperAdmin(@Valid @RequestBody CreateAdminRequest req) {
+        return ResponseEntity.ok(adminService.createSuperAdmin(req.getUsername(), req.getPassword()));
     }
 
     // Promote existing user to super admin
     @PostMapping("/promote")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> promote(@RequestBody Map<String, String> body) {
-        String username = body.get("username");
-        adminService.promoteToSuperAdmin(username);
+    public ResponseEntity<?> promote(@Valid @RequestBody UsernameRequest req) {
+        adminService.promoteToSuperAdmin(req.getUsername());
         return ResponseEntity.ok().build();
     }
 
     // Demote a super admin to admin
     @PostMapping("/demote")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> demote(@RequestBody Map<String, String> body) {
-        String username = body.get("username");
-        adminService.demoteToAdmin(username);
+    public ResponseEntity<?> demote(@Valid @RequestBody UsernameRequest req) {
+        adminService.demoteToAdmin(req.getUsername());
         return ResponseEntity.ok().build();
     }
 
