@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: saffrondb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  flyway:
+    image: flyway/flyway:9.16.1
+    depends_on:
+      - db
+    entrypoint: ["/bin/sh", "-c", "flyway migrate -X"]
+    environment:
+      FLYWAY_URL: jdbc:postgresql://db:5432/saffrondb
+      FLYWAY_USER: postgres
+      FLYWAY_PASSWORD: postgres
+      FLYWAY_PLACEHOLDERS_APP_PAYSTACK_SECRET: change_me
+    volumes:
+      - ./src/main/resources/db/migration:/flyway/sql:ro
+
+volumes:
+  postgres-data:

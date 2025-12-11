@@ -30,4 +30,17 @@ public class AdminController {
         adminManagementService.approveUser(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/bookings/{bookingId}/confirm")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    public ResponseEntity<?> confirmBooking(@PathVariable Long bookingId) {
+        String actor = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() != null ?
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName() : "SYSTEM";
+        try {
+            var saved = adminManagementService.confirmBooking(bookingId, actor);
+            return ResponseEntity.ok(saved);
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(400).body(java.util.Map.of("error", ex.getMessage()));
+        }
+    }
 }

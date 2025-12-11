@@ -24,12 +24,14 @@ public class AdminManagementService {
     private final PasswordEncoder passwordEncoder;
     private final Environment env;
     private final AuditService auditService;
+    private final com.saffrongardens.saffron.service.BookingService bookingService;
 
-    public AdminManagementService(UserRepository userRepo, PasswordEncoder passwordEncoder, Environment env, AuditService auditService) {
+    public AdminManagementService(UserRepository userRepo, PasswordEncoder passwordEncoder, Environment env, AuditService auditService, com.saffrongardens.saffron.service.BookingService bookingService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.env = env;
         this.auditService = auditService;
+        this.bookingService = bookingService;
     }
 
     private String actorName() {
@@ -157,5 +159,10 @@ public class AdminManagementService {
         userRepo.save(user);
         log.info("Approved user id='{}' username='{}'", userId, user.getUsername());
         auditService.record(actorName(), "APPROVE_USER", "Approved user: " + user.getUsername());
+    }
+
+    public com.saffrongardens.saffron.entity.Booking confirmBooking(Long bookingId, String actor) {
+        if (this.bookingService == null) throw new IllegalStateException("BookingService not available");
+        return this.bookingService.confirmBooking(bookingId, actor);
     }
 }

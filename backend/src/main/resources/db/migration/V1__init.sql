@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS vendor (
   state VARCHAR(150)
 );
 
+CREATE INDEX IF NOT EXISTS idx_vendor_category ON vendor(category);
+
 -- Audit events
 CREATE TABLE IF NOT EXISTS audit_event (
   id BIGSERIAL PRIMARY KEY,
@@ -33,31 +35,32 @@ CREATE TABLE IF NOT EXISTS audit_event (
   details TEXT,
   timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );
--- V1__init.sql - initial schema for users and vendor
 
-CREATE TABLE users (
-  id BIGINT IDENTITY(1,1) PRIMARY KEY,
-  username VARCHAR(100) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
-  role VARCHAR(50),
-  approved BIT DEFAULT 0
-);
-
-CREATE TABLE vendor (
-  id BIGINT IDENTITY(1,1) PRIMARY KEY,
-  user_id BIGINT NOT NULL,
-  category VARCHAR(100),
-  business_name VARCHAR(255) NOT NULL,
-  description VARCHAR(MAX),
-  email VARCHAR(255),
-  documents_path VARCHAR(255),
-  logo_path VARCHAR(255),
-  website VARCHAR(255),
-  phone_number VARCHAR(50),
-  address VARCHAR(255),
-  city VARCHAR(100),
-  state VARCHAR(100),
-  CONSTRAINT fk_vendor_user FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE INDEX idx_vendor_category ON vendor(category);
+-- Historical (original file contained alternative SQL Server-style definitions below for reference)
+-- The lines below are preserved as comments for history, but are NOT executed by Flyway.
+-- ORIGINAL SQL SERVER FRAGMENTS BEGIN
+-- CREATE TABLE users (
+--   id BIGINT IDENTITY(1,1) PRIMARY KEY,
+--   username VARCHAR(100) NOT NULL UNIQUE,
+--   password VARCHAR(255) NOT NULL,
+--   role VARCHAR(50),
+--   approved BIT DEFAULT 0
+-- );
+--
+-- CREATE TABLE vendor (
+--   id BIGINT IDENTITY(1,1) PRIMARY KEY,
+--   user_id BIGINT NOT NULL,
+--   category VARCHAR(100),
+--   business_name VARCHAR(255) NOT NULL,
+--   description VARCHAR(MAX),
+--   email VARCHAR(255),
+--   documents_path VARCHAR(255),
+--   logo_path VARCHAR(255),
+--   website VARCHAR(255),
+--   phone_number VARCHAR(50),
+--   address VARCHAR(255),
+--   city VARCHAR(100),
+--   state VARCHAR(100),
+--   CONSTRAINT fk_vendor_user FOREIGN KEY (user_id) REFERENCES users(id)
+-- );
+-- ORIGINAL SQL SERVER FRAGMENTS END
