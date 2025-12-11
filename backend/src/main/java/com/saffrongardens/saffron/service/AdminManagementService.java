@@ -148,4 +148,14 @@ public class AdminManagementService {
         log.info("Deleted user '{}'", username);
         auditService.record(actorName(), "DELETE_USER", "Deleted user: " + username);
     }
+
+    /** Approve an existing user (e.g., EVENT_PLANNER) */
+    public void approveUser(Long userId) {
+        User user = userRepo.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (user.isApproved()) return; // idempotent
+        user.setApproved(true);
+        userRepo.save(user);
+        log.info("Approved user id='{}' username='{}'", userId, user.getUsername());
+        auditService.record(actorName(), "APPROVE_USER", "Approved user: " + user.getUsername());
+    }
 }
