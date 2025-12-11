@@ -8,6 +8,7 @@ import com.saffrongardens.saffron.repository.VendorRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -21,14 +22,16 @@ public class VendorService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public VendorService(UserRepository userRepo, VendorRepository vendorRepo, PasswordEncoder passwordEncoder) {
+    private final AuditService auditService;
+
+    public VendorService(UserRepository userRepo, VendorRepository vendorRepo, PasswordEncoder passwordEncoder, AuditService auditService) {
         this.userRepo = userRepo;
         this.vendorRepo = vendorRepo;
         this.passwordEncoder = passwordEncoder;
+        this.auditService = auditService;
     }
 
     public void apply(VendorApplicationDTO dto) {
-        
         // encode the password before storing
         String encoded = passwordEncoder.encode(dto.getPassword());
         User user = new User(dto.getUsername(), encoded, "VENDOR");
@@ -43,6 +46,9 @@ public class VendorService {
         // store contact email on vendor record as well
         vendor.setEmail(dto.getEmail());
         vendorRepo.save(vendor);
+
+        String actor = SecurityContextHolder.getContext().getAuthentication() != null ? SecurityContextHolder.getContext().getAuthentication().getName() : "SYSTEM";
+        auditService.record(actor, "VENDOR_APPLY", "Vendor application created for " + dto.getUsername());
     }
 
     public List<Vendor> getVendorsByCategory(String category) {
@@ -55,6 +61,9 @@ public class VendorService {
         User user = vendor.getUser();
         user.setApproved(true);
         userRepo.save(user);
+
+        String actor = SecurityContextHolder.getContext().getAuthentication() != null ? SecurityContextHolder.getContext().getAuthentication().getName() : "SYSTEM";
+        auditService.record(actor, "APPROVE_VENDOR", "Approved vendor id=" + vendorId + " user=" + user.getUsername());
     }
 
     public List<Vendor> findAll() {
