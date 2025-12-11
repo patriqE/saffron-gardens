@@ -1,6 +1,7 @@
 package com.saffrongardens.saffron.controller;
 
 import com.saffrongardens.saffron.service.AdminManagementService;
+import com.saffrongardens.saffron.controller.dto.UserDTO;
 import com.saffrongardens.saffron.controller.dto.CreateAdminRequest;
 import com.saffrongardens.saffron.controller.dto.UsernameRequest;
 import jakarta.validation.Valid;
@@ -24,14 +25,18 @@ public class AdminManagementController {
     @PostMapping("/create")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> createAdmin(@Valid @RequestBody CreateAdminRequest req) {
-        return ResponseEntity.ok(adminService.createAdmin(req.getUsername(), req.getPassword()));
+        var created = adminService.createAdmin(req.getUsername(), req.getPassword());
+        UserDTO dto = new UserDTO(created.getId(), created.getUsername(), created.getRole(), created.isApproved());
+        return ResponseEntity.ok(dto);
     }
 
     // Create a super admin
     @PostMapping("/create-super")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> createSuperAdmin(@Valid @RequestBody CreateAdminRequest req) {
-        return ResponseEntity.ok(adminService.createSuperAdmin(req.getUsername(), req.getPassword()));
+        var created = adminService.createSuperAdmin(req.getUsername(), req.getPassword());
+        UserDTO dto = new UserDTO(created.getId(), created.getUsername(), created.getRole(), created.isApproved());
+        return ResponseEntity.ok(dto);
     }
 
     // Promote existing user to super admin
