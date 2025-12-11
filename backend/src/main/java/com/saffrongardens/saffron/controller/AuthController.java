@@ -2,6 +2,8 @@ package com.saffrongardens.saffron.controller;
 
 import com.saffrongardens.saffron.controller.dto.LoginRequest;
 import com.saffrongardens.saffron.security.JwtUtil;
+import com.saffrongardens.saffron.entity.User;
+import com.saffrongardens.saffron.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,10 +20,12 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
@@ -36,5 +40,20 @@ public class AuthController {
         } catch (AuthenticationException ex) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me(org.springframework.security.core.Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthenticated"));
+        }
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+        return ResponseEntity.ok(Map.of(
+                "username", user.getUsername(),
+                "role", user.getRole(),
+                "approved", user.isApproved()
+        ));
     }
 }
