@@ -228,7 +228,13 @@ export default function Home() {
               24 hours.
             </p>
             <p className="muted">
-              <strong>Email:</strong> bookings@saffrongardens.example
+              <strong>Email:</strong>{" "}
+              <a
+                href="mailto:saffrongardens2@gmail.com"
+                style={{ color: "var(--accent)", textDecoration: "none" }}
+              >
+                saffrongardens2@gmail.com
+              </a>
             </p>
           </div>
           <form

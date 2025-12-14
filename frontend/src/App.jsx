@@ -24,6 +24,8 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const auth = useAuth();
+
   // Default to dark theme, allow user override
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("theme");
@@ -39,22 +41,39 @@ export default function App() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  const handleLogout = async () => {
+    await auth.logout();
+    window.location.href = "/";
+  };
+
   return (
     <div className="app-root">
       <header className="site-header">
-        <div className="container">
-          <h1 className="brand">
-            <Link
-              to="/"
-              style={{ color: "var(--accent)", textDecoration: "none" }}
-            >
-              Saffron Gardens Event Center
-            </Link>
-          </h1>
+        <div className="container header-content">
+          <div className="header-left">
+            <img src="/logo.png" alt="Saffron Gardens Logo" className="logo" />
+            <h1 className="brand">
+              <Link
+                to="/"
+                style={{ color: "var(--accent)", textDecoration: "none" }}
+              >
+                Saffron Gardens
+              </Link>
+            </h1>
+          </div>
           <nav className="nav">
             <Link to="/">Home</Link>
             <Link to="/vendors">Vendors</Link>
-            <Link to="/login">Admin</Link>
+            {auth?.accessToken ? (
+              <>
+                <Link to="/admin">Dashboard</Link>
+                <button className="btn-logout" onClick={handleLogout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link to="/login">Admin</Link>
+            )}
             <button
               className="theme-toggle"
               onClick={toggleTheme}
@@ -111,7 +130,64 @@ export default function App() {
 
       <footer className="site-footer">
         <div className="container">
-          © Saffron Gardens Event Center — Built with care.
+          <div style={{ marginBottom: 12 }}>
+            © Saffron Gardens Event Center — Built with care.
+          </div>
+          <div className="social-links">
+            <a
+              href="https://www.instagram.com/the_saffron_gardens"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Follow us on Instagram"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  x="2"
+                  y="2"
+                  width="20"
+                  height="20"
+                  rx="5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+                <circle cx="18" cy="6" r="1" fill="currentColor" />
+              </svg>
+            </a>
+            <a href="mailto:saffrongardens2@gmail.com" title="Email us">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2 6h20v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M2 6l10 8 10-8"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </a>
+          </div>
         </div>
       </footer>
     </div>
