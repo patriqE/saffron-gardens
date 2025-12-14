@@ -22,6 +22,7 @@ class AdminManagementServiceTest {
     private Environment env;
     private AuditService auditService;
     private AdminManagementService service;
+    private com.saffrongardens.saffron.service.BookingService bookingService;
 
     @BeforeEach
     void setup() {
@@ -29,7 +30,8 @@ class AdminManagementServiceTest {
         passwordEncoder = mock(PasswordEncoder.class);
         env = mock(Environment.class);
         auditService = mock(AuditService.class);
-        service = new AdminManagementService(userRepo, passwordEncoder, env, auditService);
+        bookingService = mock(com.saffrongardens.saffron.service.BookingService.class);
+        service = new AdminManagementService(userRepo, passwordEncoder, env, auditService, bookingService);
     }
 
     @Test
