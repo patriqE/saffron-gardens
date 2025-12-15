@@ -16,11 +16,12 @@ This approach keeps Saffron Gardens:
 
 ## System Architecture (Simplified + Premium)
 
-Two user roles:
+Two user roles (revised):
 
-- Event Planners — apply, must be approved, can book halls, select vendors, manage bookings.
-- Vendors — partner accounts created/approved by Admin; provide services to Event Planners (cannot book halls).
-- Admin — manage approvals, calendar, pricing, analytics, payouts, gallery, and more.
+- SUPER_ADMIN — full control of the platform; can create/remove/modify Admins and other Super Admins (with restrictions described below).
+- ADMIN — day-to-day operators with a limited set of management capabilities (see below).
+- EVENT_PLANNER — apply, must be approved, can book halls, select vendors, manage bookings.
+- VENDOR — partner accounts created/approved by Admin; provide services to Event Planners (cannot book halls).
 
 ## How Vendors Fit Into the System
 
@@ -38,17 +39,41 @@ Vendors are categorized (examples):
 
 Admin approves or invites vendors. Approved vendors become selectable by Event Planners during booking.
 
-## Admin Capabilities (Portal)
+Admin Capabilities (Portal)
+
+Admins have a focused, operational permission set. Admins can:
 
 - Approve Event Planner applications
 - Approve Vendor applications and manage vendor profiles
 - Manage hall calendar and bookings
 - Upload gallery photos for marketing
 - Manage pricing and vendor categories
-- View revenue dashboard and analytics
-- Manage emergency cancellations and refund/payout workflows
+- Manage emergency cancellations
 - Built-in messaging/chat between planners and vendors
-- Vendor payout management and reports
+
+Admins cannot create or delete other Admins or Super Admins, and they cannot change roles of other admin accounts.
+
+Super Admin Capabilities
+
+Super Admins are privileged users who can manage high-level platform accounts and settings. Key abilities:
+
+- Create new Admins and Super Admins
+- Promote an Admin to Super Admin
+- Demote a Super Admin to Admin
+- Delete Admin or Super Admin accounts (with safeguards)
+- Configure platform-wide settings (e.g., feature flags, global pricing rules)
+
+Primary (Hard-coded) Super Admin
+
+The system will include a primary Super Admin (you/the owner) that is protected from being altered by other Super Admins. Implementation recommendations:
+
+- Do NOT store the primary super admin credentials in source control.
+- Provision the primary super admin using one of these safe methods:
+  - Seed the account during the first Flyway migration using values sourced from environment variables (recommended), or
+  - Inject the account at application startup when a specific `PRIMARY_SUPERADMIN_EMAIL` and `PRIMARY_SUPERADMIN_PASSWORD` env vars are present, then force a password reset on first login.
+- The application must enforce a guard in admin-management endpoints that prevents modifying or deleting the primary super admin account (identified by email or a configured UUID/ID).
+
+Security note: the primary super admin is a highly sensitive account. Protect its credentials with your secret manager (AWS Secrets Manager, Azure Key Vault, GitHub Secrets, or environment variables on CI/CD). Rotate the password periodically and require MFA for interactive admin sessions if possible.
 
 ## Event Planner Capabilities (Dashboard)
 
