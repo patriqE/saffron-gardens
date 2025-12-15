@@ -17,6 +17,22 @@ export function AuthProvider({ children }) {
         if (data.accessToken && mounted) {
           setAccessToken(data.accessToken);
           setLocalAccessToken(data.accessToken);
+          // Fetch user info after refresh
+          if (data.user) {
+            setUser(data.user);
+          } else {
+            // If user not in refresh response, fetch from /me endpoint
+            api
+              .get("/api/auth/me")
+              .then((meRes) => {
+                if (meRes.data && mounted) {
+                  setUser(meRes.data);
+                }
+              })
+              .catch(() => {
+                // ignore if /me fails
+              });
+          }
         }
       })
       .catch(() => {

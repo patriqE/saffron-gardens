@@ -4,21 +4,34 @@ import Home from "./pages/Home";
 import Vendors from "./pages/Vendors";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import Planner from "./pages/Planner";
+import VendorDashboard from "./pages/VendorDashboard";
 import { useAuth } from "./AuthContext";
 
 function AppRoutes() {
   const auth = useAuth();
+  const role = auth?.user?.role;
+
+  // Determine which dashboard to show based on role
+  const getDashboard = () => {
+    if (!auth?.accessToken) return <Navigate to="/login" replace />;
+
+    if (role === "ADMIN" || role === "SUPER_ADMIN") return <Admin />;
+    if (role === "EVENT_PLANNER") return <Planner />;
+    if (role === "VENDOR") return <VendorDashboard />;
+
+    // Default fallback if role is unknown
+    return <Navigate to="/login" replace />;
+  };
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/vendors" element={<Vendors />} />
       <Route path="/login" element={<Login />} />
-      <Route
-        path="/admin"
-        element={
-          auth?.accessToken ? <Admin /> : <Navigate to="/login" replace />
-        }
-      />
+      <Route path="/dashboard" element={getDashboard()} />
+      {/* Legacy admin route redirects to dashboard */}
+      <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }
@@ -66,13 +79,13 @@ export default function App() {
             <Link to="/vendors">Vendors</Link>
             {auth?.accessToken ? (
               <>
-                <Link to="/admin">Dashboard</Link>
+                <Link to="/dashboard">Dashboard</Link>
                 <button className="btn-logout" onClick={handleLogout}>
                   Logout
                 </button>
               </>
             ) : (
-              <Link to="/login">Admin</Link>
+              <Link to="/login">Login</Link>
             )}
             <button
               className="theme-toggle"

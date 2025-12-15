@@ -11,8 +11,8 @@ export default function Login() {
   const nav = useNavigate();
   const location = useLocation();
 
-  // Get the redirect path from location state, or default to /admin
-  const from = location.state?.from?.pathname || "/admin";
+  // Get the redirect path from location state, or default to /dashboard
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const submit = async (e) => {
     e.preventDefault();
