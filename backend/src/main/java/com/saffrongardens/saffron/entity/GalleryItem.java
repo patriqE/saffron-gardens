@@ -24,8 +24,9 @@ public class GalleryItem {
     @JoinColumn(name = "uploaded_by")
     private User uploadedBy;
 
-    @Column(nullable = false)
-    private Instant createdAt = Instant.now();
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
 
     private boolean published = false;
 

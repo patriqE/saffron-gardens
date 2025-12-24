@@ -22,7 +22,7 @@ public class AuditService {
         ev.setUsername(username);
         ev.setAction(action);
         ev.setDetails(details);
-        ev.setTimestamp(Instant.now());
+        ev.setCreatedAt(Instant.now());
         return repository.save(ev);
     }
 }
