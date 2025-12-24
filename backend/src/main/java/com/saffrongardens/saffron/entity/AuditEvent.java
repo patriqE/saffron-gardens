@@ -20,8 +20,12 @@ public class AuditEvent {
     @Column(columnDefinition = "TEXT")
     private String details;
 
-    @Column(nullable = false)
-    private Instant timestamp = Instant.now();
+    @Column(
+            name = "created_at",
+            nullable = false,
+            updatable = false
+    )
+    private Instant createdAt;
 
     public AuditEvent() {}
 
@@ -29,17 +33,15 @@ public class AuditEvent {
         this.username = username;
         this.action = action;
         this.details = details;
-        this.timestamp = Instant.now();
     }
 
     public Long getId() { return id; }
     public String getUsername() { return username; }
     public String getAction() { return action; }
     public String getDetails() { return details; }
-    public Instant getTimestamp() { return timestamp; }
+    public Instant getCreatedAt() { return createdAt; }
 
     public void setUsername(String username) { this.username = username; }
     public void setAction(String action) { this.action = action; }
     public void setDetails(String details) { this.details = details; }
-    public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
-}
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }}
