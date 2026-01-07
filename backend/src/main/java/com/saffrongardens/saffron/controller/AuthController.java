@@ -53,7 +53,8 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
                 "username", user.getUsername(),
                 "role", user.getRole(),
-                "approved", user.isApproved()
+                "approved", user.isApproved(),
+                "canComplete", user.isCanCompleteProfile()
         ));
     }
 }
