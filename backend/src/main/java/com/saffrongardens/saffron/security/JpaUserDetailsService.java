@@ -30,6 +30,9 @@ public class JpaUserDetailsService implements UserDetailsService {
                 new SimpleGrantedAuthority("ROLE_" + user.getRole())
         );
 
+        boolean isAdminRole = "ADMIN".equals(user.getRole()) || "SUPER_ADMIN".equals(user.getRole());
+        boolean allowedToAuthenticate = isAdminRole || user.isApproved() || user.isCanCompleteProfile();
+
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
@@ -37,7 +40,7 @@ public class JpaUserDetailsService implements UserDetailsService {
                 .accountExpired(false)
                 .accountLocked(false)
                 .credentialsExpired(false)
-                .disabled(false)
+                .disabled(!allowedToAuthenticate)
                 .build();
     }
 }

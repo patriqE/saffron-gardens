@@ -22,6 +22,9 @@ public class User {
 
     private boolean approved = false; //false if not approved by admin
 
+    // New flag to indicate admin allowed the user to continue profile completion
+    private boolean canCompleteProfile = false;
+
     public User() {
     }
     public User(String username, String password, String role) {
@@ -68,5 +71,13 @@ public class User {
 
     public void setApproved(boolean approved) {
         this.approved = approved;
+    }
+
+    public boolean isCanCompleteProfile() {
+        return canCompleteProfile;
+    }
+
+    public void setCanCompleteProfile(boolean canCompleteProfile) {
+        this.canCompleteProfile = canCompleteProfile;
     }
 }
