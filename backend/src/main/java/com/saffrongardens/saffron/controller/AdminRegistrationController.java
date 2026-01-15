@@ -1,10 +1,9 @@
 package com.saffrongardens.saffron.controller;
 
 import com.saffrongardens.saffron.entity.RegistrationRequest;
-import com.saffrongardens.saffron.entity.User;
 import com.saffrongardens.saffron.repository.RegistrationRequestRepository;
-import com.saffrongardens.saffron.repository.UserRepository;
 import com.saffrongardens.saffron.service.AuditService;
+import com.saffrongardens.saffron.service.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +17,13 @@ import java.util.Map;
 public class AdminRegistrationController {
 
     private final RegistrationRequestRepository requestRepo;
-    private final UserRepository userRepo;
     private final AuditService auditService;
+    private final NotificationService notificationService;
 
-    public AdminRegistrationController(RegistrationRequestRepository requestRepo, UserRepository userRepo, AuditService auditService) {
+    public AdminRegistrationController(RegistrationRequestRepository requestRepo, AuditService auditService, NotificationService notificationService) {
         this.requestRepo = requestRepo;
-        this.userRepo = userRepo;
         this.auditService = auditService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/pending")
@@ -40,25 +39,18 @@ public class AdminRegistrationController {
         RegistrationRequest req = requestRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Request not found"));
         if (!"PENDING".equals(req.getStatus())) return ResponseEntity.status(400).body(Map.of("error", "Request already processed"));
 
-        // Try to find existing user created at registration time
-        User user = userRepo.findByUsername(req.getUsername()).orElse(null);
-        if (user == null) {
-            // fallback: create user from request (passwordHash already stored)
-            user = new User(req.getUsername(), req.getPasswordHash(), req.getRoleRequested());
-        }
-        user.setCanCompleteProfile(true);
-        user.setApproved(false);
-        user = userRepo.save(user);
-
         req.setStatus("APPROVED");
         req.setProcessedAt(Instant.now());
         req.setProcessedBy(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() != null ?
                 org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName() : "SYSTEM");
         requestRepo.save(req);
 
-        auditService.record(req.getProcessedBy(), "APPROVE_REGISTRATION_REQUEST", "Approved registration request for: " + req.getUsername());
+        auditService.record(req.getProcessedBy(), "APPROVE_REGISTRATION_REQUEST", "Approved registration request for: " + req.getEmail());
 
-        return ResponseEntity.ok(Map.of("userId", user.getId(), "username", user.getUsername()));
+        // Notify the requester that they can now complete their application
+        notificationService.sendCanCompleteNotification(req.getEmail(), req.getRoleRequested());
+
+        return ResponseEntity.ok(Map.of("requestId", req.getId(), "email", req.getEmail()));
     }
 
     @PostMapping("/{id}/reject")
@@ -72,7 +64,7 @@ public class AdminRegistrationController {
                 org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName() : "SYSTEM");
         req.setNotes(body != null ? body.getOrDefault("note", null) : null);
         requestRepo.save(req);
-        auditService.record(req.getProcessedBy(), "REJECT_REGISTRATION_REQUEST", "Rejected registration request for: " + req.getUsername());
+        auditService.record(req.getProcessedBy(), "REJECT_REGISTRATION_REQUEST", "Rejected registration request for: " + req.getEmail());
         return ResponseEntity.ok().build();
     }
 }
