@@ -14,6 +14,9 @@ public class RegistrationRequest {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "ig_profile")
     private String igProfile;
 
@@ -38,6 +41,20 @@ public class RegistrationRequest {
     @Column(name = "notes")
     private String notes;
 
+    // Vendor-specific
+    @Column(name = "business_name")
+    private String businessName;
+
+    @Column(name = "website")
+    private String website;
+
+    // Planner-specific
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column(name = "other_socials")
+    private String otherSocials;
+
     public RegistrationRequest() {}
 
     public RegistrationRequest(String username, String igProfile, String passwordHash, String roleRequested) {
@@ -61,6 +78,14 @@ public class RegistrationRequest {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getIgProfile() {
@@ -126,5 +151,36 @@ public class RegistrationRequest {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-}
 
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getOtherSocials() {
+        return otherSocials;
+    }
+
+    public void setOtherSocials(String otherSocials) {
+        this.otherSocials = otherSocials;
+    }
+}

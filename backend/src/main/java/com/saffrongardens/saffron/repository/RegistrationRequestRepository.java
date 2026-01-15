@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.List;
 
 public interface RegistrationRequestRepository extends JpaRepository<RegistrationRequest, Long> {
-    Optional<RegistrationRequest> findByUsername(String username);
+    Optional<RegistrationRequest> findByEmail(String email);
     List<RegistrationRequest> findByStatus(String status);
 }
-

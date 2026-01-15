@@ -25,6 +25,9 @@ public class User {
     // New flag to indicate admin allowed the user to continue profile completion
     private boolean canCompleteProfile = false;
 
+    @Column(name = "email")
+    private String email;
+
     public User() {
     }
     public User(String username, String password, String role) {
@@ -79,5 +82,13 @@ public class User {
 
     public void setCanCompleteProfile(boolean canCompleteProfile) {
         this.canCompleteProfile = canCompleteProfile;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
