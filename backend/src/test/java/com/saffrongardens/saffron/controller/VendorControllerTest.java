@@ -5,7 +5,6 @@ import com.saffrongardens.saffron.controller.dto.VendorProfileDTO;
 import com.saffrongardens.saffron.dto.VendorApplicationDTO;
 import com.saffrongardens.saffron.entity.User;
 import com.saffrongardens.saffron.entity.Vendor;
-import com.saffrongardens.saffron.service.VendorService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
