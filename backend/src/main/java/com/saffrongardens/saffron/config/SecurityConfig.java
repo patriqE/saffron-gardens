@@ -37,7 +37,8 @@ public class SecurityConfig {
         // Require authentication for all requests; permit the auth endpoints.
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**").permitAll()
+                    // Allow public access to authentication and registration endpoints
+                    .requestMatchers("/api/auth/**", "/api/register").permitAll()
                     .anyRequest().authenticated()
             );
 
