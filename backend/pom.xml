@@ -125,6 +125,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -132,6 +137,24 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>9.22.3</version>
+                <!--
+                  Use environment variables (FLYWAY_URL, FLYWAY_USER, FLYWAY_PASSWORD)
+                  or pass -Dflyway.url / -Dflyway.user / -Dflyway.password on the CLI.
+                  This avoids trying to read Spring's application.properties from the POM
+                  and keeps secrets out of VCS. Example local usage shown in backend/README-FLYWAY.md.
+                -->
+                <configuration>
+                    <url>${env.FLYWAY_URL}</url>
+                    <user>${env.FLYWAY_USER}</user>
+                    <password>${env.FLYWAY_PASSWORD}</password>
+                    <!-- allow overriding with -D properties if desired -->
+                    <placeholderReplacement>false</placeholderReplacement>
+                </configuration>
             </plugin>
         </plugins>
     </build>
