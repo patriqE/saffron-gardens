@@ -80,6 +80,15 @@ public class AdminManagementService {
 
         // create new super admin
         User user = new User(primary, passwordEncoder.encode(rawPassword), "SUPER_ADMIN");
+        // determine email: prefer explicit env var, else if primary looks like an email use it, otherwise synthesize
+        String envEmail = env.getProperty("PRIMARY_SUPERADMIN_EMAIL");
+        if (envEmail != null && !envEmail.isBlank()) {
+            user.setEmail(envEmail.trim());
+        } else if (primary.contains("@")) {
+            user.setEmail(primary);
+        } else {
+            user.setEmail(primary + "@example.com");
+        }
         user.setApproved(true);
         userRepo.save(user);
         log.info("Seeded primary super admin '{}'", primary);
@@ -96,6 +105,8 @@ public class AdminManagementService {
             throw new IllegalArgumentException("User already exists: " + username);
         }
         User user = new User(username, passwordEncoder.encode(rawPassword), "ADMIN");
+        // ensure email non-null to satisfy DB constraint
+        user.setEmail(username + "@example.com");
         user.setApproved(true);
         User savedAdmin = userRepo.save(user);
         log.info("Created ADMIN user '{}'", username);
@@ -111,6 +122,8 @@ public class AdminManagementService {
             throw new IllegalArgumentException("User already exists: " + username);
         }
         User user = new User(username, passwordEncoder.encode(rawPassword), "SUPER_ADMIN");
+        // ensure email non-null
+        user.setEmail(username + "@example.com");
         user.setApproved(true);
         User saved = userRepo.save(user);
         log.info("Created SUPER_ADMIN user '{}'", username);
