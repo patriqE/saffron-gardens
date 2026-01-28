@@ -117,5 +117,43 @@ public class ProfileController {
 
         return ResponseEntity.ok(Map.of("files", savedFiles, "message", "Profile completed"));
     }
-}
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) return ResponseEntity.status(401).body(Map.of("error", "Unauthenticated"));
+        String username = userDetails.getUsername();
+        User user = userRepo.findByUsername(username).orElse(null);
+        if (user == null) return ResponseEntity.status(404).body(Map.of("error", "User not found"));
+
+        // base user info
+        Map<String, Object> base = Map.of(
+                "username", user.getUsername(),
+                "email", user.getEmail(),
+                "role", user.getRole(),
+                "approved", user.isApproved(),
+                "canCompleteProfile", user.isCanCompleteProfile()
+        );
+
+        // attach role-specific data
+        if ("VENDOR".equals(user.getRole())) {
+            Vendor v = vendorRepo.findByUserUsername(username).orElse(null);
+            List<PortfolioFile> files = fileRepo.findByUserUsername(username);
+            return ResponseEntity.ok(Map.of(
+                    "user", base,
+                    "vendor", v,
+                    "files", files
+            ));
+        } else if ("EVENT_PLANNER".equals(user.getRole()) || "PLANNER".equals(user.getRole())) {
+            Planner p = plannerRepo.findByUserUsername(username).orElse(null);
+            List<PortfolioFile> files = fileRepo.findByUserUsername(username);
+            return ResponseEntity.ok(Map.of(
+                    "user", base,
+                    "planner", p,
+                    "files", files
+            ));
+        } else {
+            // ADMIN / SUPER_ADMIN or other roles: return only base info
+            return ResponseEntity.ok(Map.of("user", base));
+        }
+    }
+}
