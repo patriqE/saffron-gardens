@@ -13,8 +13,14 @@ public class User {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
+    // canonical password hash column (used by DB migrations)
     @JsonIgnore
     @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
+    // older/alternate column that may exist in some DB states; keep in sync
+    @JsonIgnore
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "role")
@@ -30,9 +36,12 @@ public class User {
 
     public User() {
     }
-    public User(String username, String password, String role) {
+
+    public User(String username, String passwordHashOrRaw, String role) {
         this.username = username;
-        this.password = password;
+        // caller should pass an already-encoded hash. We store it to both columns to keep DBs in sync
+        this.passwordHash = passwordHashOrRaw;
+        this.password = passwordHashOrRaw;
         this.role = role;
     }
 
@@ -52,12 +61,24 @@ public class User {
         this.username = username;
     }
 
+    // Spring Security will call getPassword(); return the canonical hash
     public String getPassword() {
-        return password;
+        return passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    // set both columns to keep them in sync
+    public void setPassword(String passwordHash) {
+        this.passwordHash = passwordHash;
+        this.password = passwordHash;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+        this.password = passwordHash;
     }
 
     public String getRole() {
